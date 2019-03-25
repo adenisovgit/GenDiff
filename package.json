@@ -1,9 +1,9 @@
 {
-  "name": "hexlet_p2_gendiff",
-  "version": "0.0.1",
+  "name": "hexlet_p2_gendiff_",
+  "version": "0.0.2",
   "description": "учебный проект Вычислитель отличий",
   "bin": {
-    "hexlet": "dist/bin/gendiff.js"
+    "gendiff": "dist/bin/gendiff.js"
   },
   "scripts": {
     "test": "jest",
@@ -26,10 +26,8 @@
   },
   "homepage": "https://github.com/adenisovgit/project-lvl2-s451#readme",
   "dependencies": {
-    "@babel/plugin-proposal-pipeline-operator": "^7.3.2",
-    "gulp": "^4.0.0",
-    "source-map-support": "^0.5.10",
-    "commander": "^2.19.0"
+    "commander": "^2.19.0",
+    "hexlet_p2_gendiff": "0.0.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",
