@@ -1,0 +1,48 @@
+{
+  "name": "hexlet_p2_gendiff",
+  "version": "0.0.1",
+  "description": "учебный проект Вычислитель отличий",
+  "bin": {
+    "hexlet": "dist/bin/gendiff.js"
+  },
+  "scripts": {
+    "test": "jest",
+    "build": "NODE_ENV=production babel src --out-dir dist --source-maps inline",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adenisovgit/project-lvl2-s451.git"
+  },
+  "keywords": [
+    "hexlet",
+    "gendiff",
+    "Project2"
+  ],
+  "author": "Andrej Denisov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/adenisovgit/project-lvl2-s451/issues"
+  },
+  "homepage": "https://github.com/adenisovgit/project-lvl2-s451#readme",
+  "dependencies": {
+    "@babel/plugin-proposal-pipeline-operator": "^7.3.2",
+    "gulp": "^4.0.0",
+    "source-map-support": "^0.5.10",
+    "commander": "^2.19.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.2.2",
+    "@babel/node": "^7.2.2",
+    "@babel/preset-env": "^7.3.1",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.14.1",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-babel": "^5.3.0",
+    "eslint-plugin-import": "^2.16.0"
+  },
+  "files": [
+    "dist"
+  ]
+}
