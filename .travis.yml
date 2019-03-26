@@ -1,3 +1,4 @@
+
 ---
 
 language: node_js
@@ -9,26 +10,10 @@ script:
   - make test
   - make testcoverage
 
-env:
-  global:
-    - CC_TEST_REPORTER_ID=ac9a5df5c651ddb71499fa61c3cc31f6c8f71a677dc196268e1a1963f97b1048
-    
-cache:
-  directories:
-    - node_modules
-
-install:
-  - npm install
-
-before_script:
-  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-  - chmod +x ./cc-test-reporter
-  - ./cc-test-reporter before-build
-
-script:
-  - npm run lint
-  - npm run test
-  - npm run bundle
+addons:
+    code_climate:
+        repo_token: ac9a5df5c651ddb71499fa61c3cc31f6c8f71a677dc196268e1a1963f97b1048
 
 after_script:
-  - ./cc-test-reporter after-build -t lcov --debug --exit-code $TRAVIS_TEST_RESULT
+  - codeclimate-test-reporter < ./coverage/lcov.info
+  
