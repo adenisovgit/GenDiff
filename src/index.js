@@ -27,6 +27,7 @@ const genDiff = (fileName1, fileName2) => {
     if (has(json1, key)) {
       return `${acc} - ${key}: ${json1[key]}\n`;
     }
+
     return `${acc} + ${key}: ${json2[key]}\n`;
   }, '{\n');
   return `${result}}`;
