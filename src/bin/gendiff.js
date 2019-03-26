@@ -3,11 +3,7 @@
 import program from 'commander';
 import genDiff from '..';
 
-
 import { version } from '../../package.json';
-
-let firstFileName;
-let secondFileName;
 
 program
   .version(version)
@@ -15,9 +11,7 @@ program
   .option('-f, --format [type]', 'Output format')
   .arguments('<firstConfig> <secondConfig>')
   .action((firstConfig, secondConfig) => {
-    firstFileName = firstConfig;
-    secondFileName = secondConfig;
+    console.log(genDiff(firstConfig, secondConfig));
   });
 
 program.parse(process.argv);
-console.log(genDiff(firstFileName, secondFileName));

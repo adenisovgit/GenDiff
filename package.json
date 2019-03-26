@@ -1,6 +1,6 @@
 {
   "name": "hexlet_p2_gendiff",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "учебный проект Вычислитель отличий",
   "bin": {
     "gendiff": "dist/bin/gendiff.js"
@@ -8,6 +8,7 @@
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "build": "NODE_ENV=production babel src --out-dir dist --source-maps inline",
     "prepublishOnly": "npm run build"
   },
