@@ -9,3 +9,9 @@ script:
   - make test
   - make testcoverage
 
+addons:
+    code_climate:
+        repo_token: ac9a5df5c651ddb71499fa61c3cc31f6c8f71a677dc196268e1a1963f97b1048
+
+after_script:
+  - codeclimate-test-reporter < ./coverage/lcov.info
