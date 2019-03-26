@@ -18,12 +18,6 @@ const genDiff = (fileName1, fileName2) => {
   const allKeys = [...new Set(Object.keys(Object.assign({}, json1, json2)))];
 
   const result = allKeys.reduce((acc, key) => {
-    /* вывод для проверки вызова функции has. После решения вопроса с lodash удалю
-    console.log('key: ', key);
-    console.log('typeof(json1), typeof(json2): ', typeof json1, typeof json2);
-    console.log(`json1[key], json2[key]: ${json1[key]}, ${json2[key]}`);
-    console.log('has(json1, key), has(json2, key):', has(json1, key), has(json2, key));
-    */
     if (json1[key] === json2[key]) {
       return `${acc}   ${key}: ${json1[key]}\n`;
     }
