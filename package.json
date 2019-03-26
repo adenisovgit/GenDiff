@@ -1,12 +1,12 @@
 {
-  "name": "hexlet_p2_gendiff_",
-  "version": "0.0.2",
+  "name": "hexlet_p2_gendiff",
+  "version": "0.0.3",
   "description": "учебный проект Вычислитель отличий",
   "bin": {
     "gendiff": "dist/bin/gendiff.js"
   },
   "scripts": {
-    "test": "jest",
+    "test": "jest --watch",
     "build": "NODE_ENV=production babel src --out-dir dist --source-maps inline",
     "prepublishOnly": "npm run build"
   },
@@ -27,7 +27,7 @@
   "homepage": "https://github.com/adenisovgit/project-lvl2-s451#readme",
   "dependencies": {
     "commander": "^2.19.0",
-    "hexlet_p2_gendiff": "0.0.2"
+    "lodash": "^4.17.11"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",
@@ -35,10 +35,16 @@
     "@babel/node": "^7.2.2",
     "@babel/preset-env": "^7.3.1",
     "babel-eslint": "^10.0.1",
-    "eslint": "^5.14.1",
+    "babel-jest": "^24.0.0",
+    "debug": "^4.0.1",
+    "eslint": "^5.12.1",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-babel": "^5.3.0",
-    "eslint-plugin-import": "^2.16.0"
+    "eslint-plugin-import": "^2.15.0",
+    "eslint-plugin-jest": "^22.4.1",
+    "eslint-plugin-lodash-fp": "^2.2.0-a1",
+    "jest": "^24.5.0",
+    "jest-cli": "^24.0.0"
   },
   "files": [
     "dist"
