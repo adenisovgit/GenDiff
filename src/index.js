@@ -1,17 +1,20 @@
-import { has } from 'lodash';
+import _ from 'lodash';
 import { readFileSync, existsSync } from 'fs';
 
 const genDiff = (fileName1, fileName2) => {
   // check if files exist
-  if (!existsSync(fileName1)) {
-    return `${fileName1} отсутствует`;
-  }
-  if (!existsSync(fileName2)) {
-    return `${fileName2} отсутствует`;
+  const wrongFiles = ([fileName1, fileName2].reduce((acc, fileName) => {
+    if (!existsSync(fileName)) {
+      return [...acc, fileName];
+    }
+    return acc;
+  }, []));
+  if (wrongFiles.length !== 0) {
+    return `Could not find this files:\n ${wrongFiles.join('\n')}`;
   }
 
-  const json1 = JSON.parse(readFileSync(fileName1));
-  const json2 = JSON.parse(readFileSync(fileName2));
+  const json1 = JSON.parse(readFileSync(fileName1, 'utf8'));
+  const json2 = JSON.parse(readFileSync(fileName2, 'utf8'));
 
   const allKeys = Object.keys({ ...json1, ...json2 });
 
@@ -19,10 +22,10 @@ const genDiff = (fileName1, fileName2) => {
     if (json1[key] === json2[key]) {
       return [...acc, `   ${key}: ${json1[key]}`];
     }
-    if (has(json1, key) && has(json2, key)) {
+    if (_.has(json1, key) && _.has(json2, key)) {
       return [...acc, ` - ${key}: ${json1[key]}`, ` + ${key}: ${json2[key]}`];
     }
-    if (has(json1, key)) {
+    if (_.has(json1, key)) {
       return [...acc, ` - ${key}: ${json1[key]}`];
     }
 
