@@ -18,7 +18,11 @@ const testArgs = [
   ['mixed',
     '__tests__/__fixtures__/before.ini',
     '__tests__/__fixtures__/after.json',
-    '__tests__/__fixtures__/testString1']];
+    '__tests__/__fixtures__/testString1'],
+  ['bad filename',
+    '__tests__/__fixtures__/before.ini',
+    '__tests__/__fixtures__/after.jso',
+    '__tests__/__fixtures__/badFileNamereport']];
 
 test.each(testArgs)(
   '%s',
