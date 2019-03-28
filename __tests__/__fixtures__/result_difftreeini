@@ -4,14 +4,17 @@
       - setting2: 200
       + setting3: {
             key: value
+            setting4: blah blah
         }
       - setting3: true
         setting6: {
             key: value
           + ops: vops
         }
+      - nest: {
+            key: value
+        }
       + follow: false
-      + setting4: blah blah
       + setting5: {
             key5: value5
         }
@@ -21,9 +24,6 @@
       - baz: bas
         foo: bar
       + nest: str
-      - nest: {
-            key: value
-        }
     }
   - group2: {
         abc: 12345

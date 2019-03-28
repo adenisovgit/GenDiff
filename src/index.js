@@ -1,46 +1,44 @@
-import _ from 'lodash';
 import { readFileSync, existsSync } from 'fs';
 import path from 'path';
-import getParser from './parsers';
+import _ from 'lodash';
+import { getParser, getDiffAst } from './parsers';
+
 
 const checkForWrongFiles = fileNames => fileNames
   .reduce((acc, fileName) => (existsSync(fileName) ? acc : [...acc, fileName]), []);
 
-const getDiffAst = (oldData, newData) => {
-  const allKeys = Object.keys({ ...oldData, ...newData });
-  const result = allKeys.reduce((acc, key) => {
-    // both keys are Objects
-    if ((oldData[key] instanceof Object) && (newData[key] instanceof Object)) {
-      const treePart = getDiffAst(oldData[key], newData[key]);
-      const record = { type: 'same', [key]: treePart };
-      return [...acc, record];
-      // !!!!!!! Add 'SAME' item for object!!!
-    }
-
-    // key not exist in new list
-    if (_.has(oldData, key) && !_.has(newData, key)) {
-      const oldRecord = { type: 'old', [key]: oldData[key] };
-      return [...acc, oldRecord];
-    }
-
-    // key not exist in old list
-    if (!_.has(oldData, key) && _.has(newData, key)) {
-      const newRecord = { type: 'new', [key]: newData[key] };
-      return [...acc, newRecord];
-    }
-
-    // both keys are Values or one key is Object other is Value
-    if (oldData[key] === newData[key]) {
-      const newRecord = { type: 'same', [key]: oldData[key] };
-      return [...acc, newRecord];
-    }
-    const newRecord = { type: 'new', [key]: newData[key] };
-    const oldRecord = { type: 'old', [key]: oldData[key] };
-    return [...acc, newRecord, oldRecord];
-  }, []);
-  console.log(result);
-  return result;
+const indentValue = n => ` ${'    '.repeat(n)}`;
+const diffSignSelector = {
+  same: '   ',
+  old: ' - ',
+  new: ' + ',
 };
+
+const stringify = (obj, level) => Object.keys(obj)
+  .map((key) => {
+    const indent = indentValue(level);
+    const value = obj[key];
+    if (value instanceof Object) {
+      return [`${indent}   ${key}: {`, stringify(value, level + 1), `${indent}   }`];
+    }
+    return [`${indent}   ${key}: ${value}`];
+  });
+
+
+const renderAst = (ast, level) => ast.map((obj) => {
+  const indent = indentValue(level);
+  const diffSign = diffSignSelector[obj.type];
+  const keyName = Object.keys(obj)[1];
+  const value = obj[keyName];
+  if (value instanceof Array) {
+    return [`${indent}${diffSign}${keyName}: {`, renderAst(value, level + 1), `${indent}   }`];
+  }
+  if (value instanceof Object) {
+    return [`${indent}${diffSign}${keyName}: {`, stringify(value, level + 1), `${indent}   }`];
+  }
+
+  return `${indent}${diffSign}${keyName}: ${value}`;
+});
 
 const genDiff = (fileName1, fileName2) => {
   const wrongFiles = checkForWrongFiles([fileName1, fileName2]);
@@ -55,7 +53,8 @@ const genDiff = (fileName1, fileName2) => {
   const list2 = parse2(readFileSync(fileName2, 'utf8'));
   const diffAst = getDiffAst(list1, list2);
 
-  return `${diffAst}`;
+  const result = _.flattenDeep(renderAst(diffAst, 0));
+  return ['{', ...result, '}'].join('\n');
 };
 
 export default genDiff;
