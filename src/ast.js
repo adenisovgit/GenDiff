@@ -1,35 +1,71 @@
 import _ from 'lodash';
 
+const propertyActions = [
+  {
+    name: 'group',
+    check: (oldData, newData) => (oldData instanceof Object && newData instanceof Object),
+    process: (key, oldData, newData, getDiffAstRecursive) => (
+      [{
+        type: 'same',
+        key,
+        value: getDiffAstRecursive(oldData, newData),
+      }]),
+  },
+  {
+    name: 'same',
+    check: (oldData, newData) => (oldData === newData),
+    process: (key, oldData, newData) => (
+      [{
+        type: 'same',
+        key,
+        value: newData,
+      }]),
+  },
+  {
+    name: 'old',
+    check: (oldData, newData) => (newData === undefined),
+    process: (key, oldData) => (
+      [{
+        type: 'old',
+        key,
+        value: oldData,
+      }]),
+  },
+  {
+    name: 'new',
+    check: oldData => (oldData === undefined),
+    process: (key, oldData, newData) => (
+      [{
+        type: 'new',
+        key,
+        value: newData,
+      }]),
+  },
+  {
+    name: 'differs',
+    check: () => true,
+    process: (key, oldData, newData) => (
+      [{
+        type: 'old',
+        key,
+        value: oldData,
+      },
+      {
+        type: 'new',
+        key,
+        value: newData,
+      }]),
+  },
+];
+
+const getPropertyAction = (oldData, newData) => propertyActions
+  .find(({ check }) => check(oldData, newData));
+
 export const getDiffAst = (oldData, newData) => {
-  const allKeys = Object.keys({ ...oldData, ...newData });
+  const allKeys = _.union([...Object.keys(oldData), ...Object.keys(newData)]);
   const result = allKeys.reduce((acc, key) => {
-    // both keys are Objects
-    if ((oldData[key] instanceof Object) && (newData[key] instanceof Object)) {
-      const subTree = getDiffAst(oldData[key], newData[key]);
-      const record = { type: 'same', key, value: subTree };
-      return [...acc, record];
-    }
-
-    // key not exist in new list
-    if (_.has(oldData, key) && !_.has(newData, key)) {
-      const oldRecord = { type: 'old', key, value: oldData[key] };
-      return [...acc, oldRecord];
-    }
-
-    // key not exist in old list
-    if (!_.has(oldData, key) && _.has(newData, key)) {
-      const newRecord = { type: 'new', key, value: newData[key] };
-      return [...acc, newRecord];
-    }
-
-    // both keys are Values or one key is Object other is Value
-    if (oldData[key] === newData[key]) {
-      const newRecord = { type: 'same', key, value: oldData[key] };
-      return [...acc, newRecord];
-    }
-    const newRecord = { type: 'new', key, value: newData[key] };
-    const oldRecord = { type: 'old', key, value: oldData[key] };
-    return [...acc, newRecord, oldRecord];
+    const { process } = getPropertyAction(oldData[key], newData[key]);
+    return [...acc, ...process(key, oldData[key], newData[key], getDiffAst)];
   }, []);
   return result;
 };
@@ -50,7 +86,6 @@ const stringify = (obj, level) => Object.keys(obj)
     }
     return [`${indent}   ${key}: ${value}`];
   });
-
 
 export const renderAst = (ast, level = 0) => ast.map((obj) => {
   const indent = indentValue(level);
