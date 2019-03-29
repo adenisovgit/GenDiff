@@ -1,44 +1,11 @@
 import { readFileSync, existsSync } from 'fs';
 import path from 'path';
 import _ from 'lodash';
-import { getParser, getDiffAst } from './parsers';
-
+import getParser from './parsers';
+import { getDiffAst, renderAst } from './ast';
 
 const checkForWrongFiles = fileNames => fileNames
   .reduce((acc, fileName) => (existsSync(fileName) ? acc : [...acc, fileName]), []);
-
-const indentValue = n => ` ${'    '.repeat(n)}`;
-const diffSignSelector = {
-  same: '   ',
-  old: ' - ',
-  new: ' + ',
-};
-
-const stringify = (obj, level) => Object.keys(obj)
-  .map((key) => {
-    const indent = indentValue(level);
-    const value = obj[key];
-    if (value instanceof Object) {
-      return [`${indent}   ${key}: {`, stringify(value, level + 1), `${indent}   }`];
-    }
-    return [`${indent}   ${key}: ${value}`];
-  });
-
-
-const renderAst = (ast, level) => ast.map((obj) => {
-  const indent = indentValue(level);
-  const diffSign = diffSignSelector[obj.type];
-  const keyName = Object.keys(obj)[1];
-  const value = obj[keyName];
-  if (value instanceof Array) {
-    return [`${indent}${diffSign}${keyName}: {`, renderAst(value, level + 1), `${indent}   }`];
-  }
-  if (value instanceof Object) {
-    return [`${indent}${diffSign}${keyName}: {`, stringify(value, level + 1), `${indent}   }`];
-  }
-
-  return `${indent}${diffSign}${keyName}: ${value}`;
-});
 
 const genDiff = (fileName1, fileName2) => {
   const wrongFiles = checkForWrongFiles([fileName1, fileName2]);
