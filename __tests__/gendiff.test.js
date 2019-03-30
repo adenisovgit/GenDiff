@@ -2,6 +2,8 @@ import { readFileSync } from 'fs';
 
 import genDiff from '../src';
 
+const fastDebug = true;
+
 const testArgs = [
   ['bad filename',
     '__tests__/__fixtures__/beforetree.json',
@@ -22,8 +24,23 @@ const testArgs = [
 
 ];
 
-test.each(testArgs)(
-  '%s',
-  (type, fileName1, fileName2, resultFileString) => expect(genDiff(fileName1, fileName2))
-    .toBe(readFileSync(resultFileString, 'utf8')),
-);
+const testArgsFast = [
+  ['tree, json',
+    '__tests__/__fixtures__/beforetree.json',
+    '__tests__/__fixtures__/aftertree.json',
+    '__tests__/__fixtures__/result_difftreejson'],
+];
+
+if (!fastDebug) {
+  test.each(testArgs)(
+    '%s',
+    (type, fileName1, fileName2, resultFileString) => expect(genDiff(fileName1, fileName2))
+      .toBe(readFileSync(resultFileString, 'utf8')),
+  );
+} else {
+  test.each(testArgsFast)(
+    '%s',
+    (type, fileName1, fileName2, resultFileString) => expect(genDiff(fileName1, fileName2))
+      .toBe(readFileSync(resultFileString, 'utf8')),
+  );
+}

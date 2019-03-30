@@ -2,60 +2,30 @@ import _ from 'lodash';
 
 const propertyActions = [
   {
-    name: 'group',
+    type: 'group',
     check: (key, oldData, newData) => oldData[key] instanceof Object
       && newData[key] instanceof Object,
-    process: (key, oldData, newData, getDiffAstRecursive) => (
-      [{
-        type: 'same',
-        key,
-        value: getDiffAstRecursive(oldData, newData),
-      }]),
+    process: (oldData, newData, func) => ({ children: func(oldData, newData) }),
   },
   {
-    name: 'same',
+    type: 'same',
     check: (key, oldData, newData) => oldData[key] === newData[key],
-    process: (key, _oldData, newData) => (
-      [{
-        type: 'same',
-        key,
-        value: newData,
-      }]),
+    process: (_oldData, newData) => ({ value: newData }),
   },
   {
-    name: 'deleted',
+    type: 'deleted',
     check: (key, _oldData, newData) => (!_.has(newData, key)),
-    process: (key, oldData) => (
-      [{
-        type: 'deleted',
-        key,
-        value: oldData,
-      }]),
+    process: oldData => ({ value: oldData }),
   },
   {
-    name: 'added',
+    type: 'added',
     check: (key, oldData) => (!_.has(oldData, key)),
-    process: (key, _oldData, newData) => (
-      [{
-        type: 'added',
-        key,
-        value: newData,
-      }]),
+    process: (_oldData, newData) => ({ value: newData }),
   },
   {
-    name: 'changed',
+    type: 'changed',
     check: () => true,
-    process: (key, oldData, newData) => (
-      [{
-        type: 'deleted',
-        key,
-        value: oldData,
-      },
-      {
-        type: 'added',
-        key,
-        value: newData,
-      }]),
+    process: (oldData, newData) => ({ value: { old: oldData, new: newData } }),
   },
 ];
 
@@ -64,10 +34,13 @@ const getPropertyAction = (key, oldData, newData) => propertyActions
 
 const getDiffAst = (oldData, newData) => {
   const allKeys = _.union(Object.keys(oldData), Object.keys(newData));
-  const result = allKeys.reduce((acc, key) => {
-    const { process } = getPropertyAction(key, oldData, newData);
-    return [...acc, ...process(key, oldData[key], newData[key], getDiffAst)];
-  }, []);
+
+  const result = allKeys.map((key) => {
+    const { type, process } = getPropertyAction(key, oldData, newData);
+    const data = process(oldData[key], newData[key], getDiffAst);
+    return { type, key, ...data };
+  });
+
   return result;
 };
 
