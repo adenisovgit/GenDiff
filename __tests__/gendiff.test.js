@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 
 import genDiff from '../src';
 
-const fastDebug = true;
+const fastDebug = false;
 
 const testArgs = [
   ['bad filename',

@@ -12,45 +12,58 @@ const stringify = (obj, level) => Object.keys(obj)
     return [`${indent}   ${key}: ${value}`];
   });
 
-const renderDiffActions = [
+const makePrintValues = (obj, level) => {
+  if (obj instanceof Object) {
+    return ['{', [...stringify(obj, level), `${indentValue(level - 1)}   }`]];
+  }
+  return [obj, []];
+};
+
+const renderActions = [
   {
     type: 'group',
-    process: (key, value, indent, diffSign, level, renderDiffTreeRecursive) => [`${indent}${diffSign}${key}: {`, renderDiffTreeRecursive(value, level + 1), `${indent}   }`],
+    renderElemDiff: (obj, indent, level, func) => [`${indent}   ${obj.key}: {`, func(obj.children, level + 1), `${indent}   }`],
   },
   {
     type: 'same',
-    process: (key, value, indent, diffSign, level) => [`${indent}${diffSign}${key}: {`, stringify(value, level + 1), `${indent}   }`],
+    renderElemDiff: (obj, indent) => [`${indent}   ${obj.key}: ${obj.value}`],
   },
   {
     type: 'added',
-    process: (key, value, indent, diffSign) => [`${indent}${diffSign}${key}: ${value}`],
+    renderElemDiff: (obj, indent, level) => {
+      const [valueOrBrace, subLines] = makePrintValues(obj.value, level + 1);
+      return [`${indent} + ${obj.key}: ${valueOrBrace}`, ...subLines];
+    },
   },
   {
     type: 'deleted',
-    process: (key, value, indent, diffSign) => [`${indent}${diffSign}${key}: ${value}`],
+    renderElemDiff: (obj, indent, level) => {
+      const [valueOrBrace, subLines] = makePrintValues(obj.value, level + 1);
+      return [`${indent} - ${obj.key}: ${valueOrBrace}`, ...subLines];
+    },
   },
   {
     type: 'changed',
-    process: (key, value, indent, diffSign) => [`${indent}${diffSign}${key}: ${value}`],
+    renderElemDiff: (obj, indent, level) => {
+      const [valueOrBrace1, subLines1] = makePrintValues(obj.value.new, level + 1);
+      const [valueOrBrace2, subLines2] = makePrintValues(obj.value.old, level + 1);
+
+      return [`${indent} + ${obj.key}: ${valueOrBrace1}`, ...subLines1,
+        `${indent} - ${obj.key}: ${valueOrBrace2}`, ...subLines2];
+    },
   },
 ];
 
 const renderDiffTree = (ast, level = 0) => ast.map((obj) => {
-  
-  /*
+  const objRender = renderActions.find(({ type }) => (type === obj.type)).renderElemDiff;
   const indent = indentValue(level);
-  const diffSign = diffSignSelector[obj.type];
-  const { key, value } = obj;
-  const objProcess = renderDiffActions.find(({ check }) => check(value)).process;
-  return objProcess(key, value, indent, diffSign, level, renderDiffTree);
-  */
-
+  const result = objRender(obj, indent, level, renderDiffTree);
+  return result;
 });
 
 export const renderPlain = () => null;
 
 export const renderDiff = (ast, level = 0) => {
-  console.log(ast);
   const result = _.flattenDeep(renderDiffTree(ast, level));
   return result;
 };
