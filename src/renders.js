@@ -3,8 +3,8 @@ import _ from 'lodash';
 const indentValue = (n = 1) => ` ${'    '.repeat(n)}`;
 const diffSignSelector = {
   same: '   ',
-  old: ' - ',
-  new: ' + ',
+  deleted: ' - ',
+  added: ' + ',
 };
 
 const stringify = (obj, level) => Object.keys(obj)

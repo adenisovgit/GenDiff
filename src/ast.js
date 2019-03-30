@@ -3,7 +3,8 @@ import _ from 'lodash';
 const propertyActions = [
   {
     name: 'group',
-    check: (oldData, newData) => (oldData instanceof Object && newData instanceof Object),
+    check: (key, oldData, newData) => oldData[key] instanceof Object
+      && newData[key] instanceof Object,
     process: (key, oldData, newData, getDiffAstRecursive) => (
       [{
         type: 'same',
@@ -13,8 +14,8 @@ const propertyActions = [
   },
   {
     name: 'same',
-    check: (oldData, newData) => (oldData === newData),
-    process: (key, oldData, newData) => (
+    check: (key, oldData, newData) => oldData[key] === newData[key],
+    process: (key, _oldData, newData) => (
       [{
         type: 'same',
         key,
@@ -22,49 +23,49 @@ const propertyActions = [
       }]),
   },
   {
-    name: 'old',
-    check: (_oldData, newData) => (newData === undefined),
+    name: 'deleted',
+    check: (key, _oldData, newData) => (!_.has(newData, key)),
     process: (key, oldData) => (
       [{
-        type: 'old',
+        type: 'deleted',
         key,
         value: oldData,
       }]),
   },
   {
-    name: 'new',
-    check: oldData => (oldData === undefined),
+    name: 'added',
+    check: (key, oldData) => (!_.has(oldData, key)),
     process: (key, _oldData, newData) => (
       [{
-        type: 'new',
+        type: 'added',
         key,
         value: newData,
       }]),
   },
   {
-    name: 'differs',
+    name: 'changed',
     check: () => true,
     process: (key, oldData, newData) => (
       [{
-        type: 'old',
+        type: 'deleted',
         key,
         value: oldData,
       },
       {
-        type: 'new',
+        type: 'added',
         key,
         value: newData,
       }]),
   },
 ];
 
-const getPropertyAction = (oldData, newData) => propertyActions
-  .find(({ check }) => check(oldData, newData));
+const getPropertyAction = (key, oldData, newData) => propertyActions
+  .find(({ check }) => check(key, oldData, newData));
 
 const getDiffAst = (oldData, newData) => {
-  const allKeys = _.union([...Object.keys(oldData), ...Object.keys(newData)]);
+  const allKeys = _.union(Object.keys(oldData), Object.keys(newData));
   const result = allKeys.reduce((acc, key) => {
-    const { process } = getPropertyAction(oldData[key], newData[key]);
+    const { process } = getPropertyAction(key, oldData, newData);
     return [...acc, ...process(key, oldData[key], newData[key], getDiffAst)];
   }, []);
   return result;
