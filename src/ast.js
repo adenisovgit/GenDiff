@@ -23,7 +23,7 @@ const propertyActions = [
   },
   {
     name: 'old',
-    check: (oldData, newData) => (newData === undefined),
+    check: (_oldData, newData) => (newData === undefined),
     process: (key, oldData) => (
       [{
         type: 'old',
@@ -34,7 +34,7 @@ const propertyActions = [
   {
     name: 'new',
     check: oldData => (oldData === undefined),
-    process: (key, oldData, newData) => (
+    process: (key, _oldData, newData) => (
       [{
         type: 'new',
         key,
@@ -61,7 +61,7 @@ const propertyActions = [
 const getPropertyAction = (oldData, newData) => propertyActions
   .find(({ check }) => check(oldData, newData));
 
-export const getDiffAst = (oldData, newData) => {
+const getDiffAst = (oldData, newData) => {
   const allKeys = _.union([...Object.keys(oldData), ...Object.keys(newData)]);
   const result = allKeys.reduce((acc, key) => {
     const { process } = getPropertyAction(oldData[key], newData[key]);
@@ -70,33 +70,4 @@ export const getDiffAst = (oldData, newData) => {
   return result;
 };
 
-const indentValue = (n = 1) => ` ${'    '.repeat(n)}`;
-const diffSignSelector = {
-  same: '   ',
-  old: ' - ',
-  new: ' + ',
-};
-
-const stringify = (obj, level) => Object.keys(obj)
-  .map((key) => {
-    const indent = indentValue(level);
-    const value = obj[key];
-    if (value instanceof Object) {
-      return [`${indent}   ${key}: {`, stringify(value, level + 1), `${indent}   }`];
-    }
-    return [`${indent}   ${key}: ${value}`];
-  });
-
-export const renderAst = (ast, level = 0) => ast.map((obj) => {
-  const indent = indentValue(level);
-  const diffSign = diffSignSelector[obj.type];
-  const { key, value } = obj;
-  if (value instanceof Array) {
-    return [`${indent}${diffSign}${key}: {`, renderAst(value, level + 1), `${indent}   }`];
-  }
-  if (value instanceof Object) {
-    return [`${indent}${diffSign}${key}: {`, stringify(value, level + 1), `${indent}   }`];
-  }
-
-  return `${indent}${diffSign}${key}: ${value}`;
-});
+export default getDiffAst;
