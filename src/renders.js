@@ -12,7 +12,7 @@ const stringify = (obj, level) => Object.keys(obj)
     return [`${indent}   ${key}: ${value}`];
   });
 
-const makePrintValues = (obj, level) => {
+const prepareObjectValue = (obj, level) => {
   if (obj instanceof Object) {
     return ['{', [...stringify(obj, level), `${indentValue(level - 1)}   }`]];
   }
@@ -43,7 +43,7 @@ const renderActions = [
   {
     type: 'added',
     renderElemDiff: (obj, indent, level) => {
-      const [valueOrBrace, subLines] = makePrintValues(obj.value, level + 1);
+      const [valueOrBrace, subLines] = prepareObjectValue(obj.value, level + 1);
       return [`${indent} + ${obj.key}: ${valueOrBrace}`, ...subLines];
     },
     renderElemPlain: (obj, parents) => `Property '${parents}${obj.key}' was added with value: ${normalizeValue(obj.value)}`,
@@ -51,7 +51,7 @@ const renderActions = [
   {
     type: 'deleted',
     renderElemDiff: (obj, indent, level) => {
-      const [valueOrBrace, subLines] = makePrintValues(obj.value, level + 1);
+      const [valueOrBrace, subLines] = prepareObjectValue(obj.value, level + 1);
       return [`${indent} - ${obj.key}: ${valueOrBrace}`, ...subLines];
     },
     renderElemPlain: (obj, parents) => `Property '${parents}${obj.key}' was removed`,
@@ -59,13 +59,13 @@ const renderActions = [
   {
     type: 'changed',
     renderElemDiff: (obj, indent, level) => {
-      const [valueOrBrace1, subLines1] = makePrintValues(obj.value.new, level + 1);
-      const [valueOrBrace2, subLines2] = makePrintValues(obj.value.old, level + 1);
+      const [valueOrBrace1, subLines1] = prepareObjectValue(obj.newValue, level + 1);
+      const [valueOrBrace2, subLines2] = prepareObjectValue(obj.oldValue, level + 1);
 
       return [`${indent} + ${obj.key}: ${valueOrBrace1}`, ...subLines1,
         `${indent} - ${obj.key}: ${valueOrBrace2}`, ...subLines2];
     },
-    renderElemPlain: (obj, parents) => `Prorerty '${parents}${obj.key}' was updated. From ${normalizeValue(obj.value.old)} to ${normalizeValue(obj.value.new)}`,
+    renderElemPlain: (obj, parents) => `Prorerty '${parents}${obj.key}' was updated. From ${normalizeValue(obj.oldValue)} to ${normalizeValue(obj.newValue)}`,
   },
 ];
 
@@ -87,10 +87,21 @@ const renderPlainTree = (ast, parents = '') => ast.map((obj) => {
 
 const renderPlain = ast => _.flattenDeep(renderPlainTree(ast)).filter(value => value !== '').join('\n');
 
+const renderJSON = (ast) => {
+  /* const toObject = (obj) => {
+    const result = obj.reduce((acc, value) => {
+      const { count, obj } = acc;
+      return {count: acc[count + 1], { ...acc.val, } }
+    }, {count: 1, val: {}});
+  };
+
+  return result; */
+};
 
 const renderers = {
   diff: renderDiff,
   plain: renderPlain,
+  json: renderJSON,
 };
 
 const getRenderer = type => renderers[type];

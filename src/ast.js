@@ -25,7 +25,7 @@ const propertyActions = [
   {
     type: 'changed',
     check: () => true,
-    process: (oldData, newData) => ({ value: { old: oldData, new: newData } }),
+    process: (oldData, newData) => ({ oldValue: oldData, newValue: newData }),
   },
 ];
 

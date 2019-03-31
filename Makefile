@@ -16,6 +16,10 @@ test:
 testwatch:
 	npm run test:watch
 
+testone:
+	npm run test:one
+
+
 testcoverage:
 	npm run test:coverage
 
