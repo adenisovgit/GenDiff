@@ -29,74 +29,47 @@ const normalizeValue = (value) => {
   return value;
 };
 
-const renderActions = [
-  {
-    type: 'group',
-    renderElemDiff: (obj, indent, level, func) => [`${indent}   ${obj.key}: {`, func(obj.children, level + 1), `${indent}   }`],
-    renderElemPlain: (obj, parents, func) => func(obj.children, `${parents}${obj.key}.`),
+const renderDiffActions = {
+  group: (obj, indent, level, func) => [`${indent}   ${obj.key}: {`, func(obj.children, level + 1), `${indent}   }`],
+  same: (obj, indent) => [`${indent}   ${obj.key}: ${obj.value}`],
+  added: (obj, indent, level) => {
+    const [valueOrBrace, subLines] = prepareObjectValue(obj.value, level + 1);
+    return [`${indent} + ${obj.key}: ${valueOrBrace}`, ...subLines];
   },
-  {
-    type: 'same',
-    renderElemDiff: (obj, indent) => [`${indent}   ${obj.key}: ${obj.value}`],
-    renderElemPlain: () => '',
+  deleted: (obj, indent, level) => {
+    const [valueOrBrace, subLines] = prepareObjectValue(obj.value, level + 1);
+    return [`${indent} - ${obj.key}: ${valueOrBrace}`, ...subLines];
   },
-  {
-    type: 'added',
-    renderElemDiff: (obj, indent, level) => {
-      const [valueOrBrace, subLines] = prepareObjectValue(obj.value, level + 1);
-      return [`${indent} + ${obj.key}: ${valueOrBrace}`, ...subLines];
-    },
-    renderElemPlain: (obj, parents) => `Property '${parents}${obj.key}' was added with value: ${normalizeValue(obj.value)}`,
-  },
-  {
-    type: 'deleted',
-    renderElemDiff: (obj, indent, level) => {
-      const [valueOrBrace, subLines] = prepareObjectValue(obj.value, level + 1);
-      return [`${indent} - ${obj.key}: ${valueOrBrace}`, ...subLines];
-    },
-    renderElemPlain: (obj, parents) => `Property '${parents}${obj.key}' was removed`,
-  },
-  {
-    type: 'changed',
-    renderElemDiff: (obj, indent, level) => {
-      const [valueOrBrace1, subLines1] = prepareObjectValue(obj.newValue, level + 1);
-      const [valueOrBrace2, subLines2] = prepareObjectValue(obj.oldValue, level + 1);
+  changed: (obj, indent, level) => {
+    const [valueOrBrace1, subLines1] = prepareObjectValue(obj.newValue, level + 1);
+    const [valueOrBrace2, subLines2] = prepareObjectValue(obj.oldValue, level + 1);
 
-      return [`${indent} + ${obj.key}: ${valueOrBrace1}`, ...subLines1,
-        `${indent} - ${obj.key}: ${valueOrBrace2}`, ...subLines2];
-    },
-    renderElemPlain: (obj, parents) => `Prorerty '${parents}${obj.key}' was updated. From ${normalizeValue(obj.oldValue)} to ${normalizeValue(obj.newValue)}`,
+    return [`${indent} + ${obj.key}: ${valueOrBrace1}`, ...subLines1,
+      `${indent} - ${obj.key}: ${valueOrBrace2}`, ...subLines2];
   },
-];
+};
 
-const renderDiffTree = (ast, level = 0) => ast.map((obj) => {
-  const objRender = renderActions.find(({ type }) => (type === obj.type)).renderElemDiff;
-  const indent = indentValue(level);
-  return objRender(obj, indent, level, renderDiffTree);
-});
+const renderPlainActions = {
+  group: (obj, parents, func) => func(obj.children, `${parents}${obj.key}.`),
+  same: () => '',
+  added: (obj, parents) => `Property '${parents}${obj.key}' was added with value: ${normalizeValue(obj.value)}`,
+  deleted: (obj, parents) => `Property '${parents}${obj.key}' was removed`,
+  changed: (obj, parents) => `Prorerty '${parents}${obj.key}' was updated. From ${normalizeValue(obj.oldValue)} to ${normalizeValue(obj.newValue)}`,
+};
+
+const renderDiffTree = (ast, level = 0) => ast.map(obj => renderDiffActions[obj
+  .type](obj, indentValue(level), level, renderDiffTree));
 
 const renderDiff = (ast, level = 0) => {
   const result = _.flattenDeep(renderDiffTree(ast, level));
   return ['{', ...result, '}'].join('\n');
 };
 
-const renderPlainTree = (ast, parents = '') => ast.map((obj) => {
-  const objRender = renderActions.find(({ type }) => (type === obj.type)).renderElemPlain;
-  return objRender(obj, parents, renderPlainTree);
-});
+const renderPlainTree = (ast, parents = '') => ast.map(obj => renderPlainActions[obj.type](obj, parents, renderPlainTree));
 
 const renderPlain = ast => _.flattenDeep(renderPlainTree(ast)).filter(value => value !== '').join('\n');
 
-const renderJSON = (ast) => {
-  /* const toObject = (obj) => {
-    const result = obj.reduce((acc, value) => {
-      const { count, obj } = acc;
-      return {count: acc[count + 1], { ...acc.val, } }
-    }, {count: 1, val: {}});
-  };
-
-  return result; */
-};
+const renderJSON = ast => JSON.stringify(ast);
 
 const renderers = {
   diff: renderDiff,
