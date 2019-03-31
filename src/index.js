@@ -11,7 +11,7 @@ const genDiff = (fileName1, fileName2, format = 'diff') => {
   const wrongFiles = checkForWrongFiles([fileName1, fileName2]);
   if (wrongFiles.length !== 0) {
     const errorMessage = `Could not find this files:\n ${wrongFiles.join('\n')}`;
-    throw new Error(errorMessage);
+    throw errorMessage;
   }
   if (!['diff', 'plain', 'json'].includes(format.toLowerCase())) {
     const errorMessage = 'Wrong format';

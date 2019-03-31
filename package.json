@@ -1,6 +1,6 @@
 {
   "name": "hexlet_p2_gendiff",
-  "version": "0.2.1",
+  "version": "0.3.1",
   "description": "учебный проект Вычислитель отличий",
   "bin": {
     "gendiff": "dist/bin/gendiff.js"
