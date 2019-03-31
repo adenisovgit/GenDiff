@@ -10,12 +10,10 @@ const checkForWrongFiles = fileNames => fileNames
 const genDiff = (fileName1, fileName2, format = 'diff') => {
   const wrongFiles = checkForWrongFiles([fileName1, fileName2]);
   if (wrongFiles.length !== 0) {
-    const errorMessage = `Could not find this files:\n ${wrongFiles.join('\n')}`;
-    throw errorMessage;
+    throw Error(`Could not find this files:\n ${wrongFiles.join('\n')}`);
   }
   if (!['diff', 'plain', 'json'].includes(format.toLowerCase())) {
-    const errorMessage = 'Wrong format';
-    throw errorMessage;
+    throw Error('Wrong format');
   }
 
   const parse1 = getParser(path.extname(fileName1).toLowerCase().slice(1));

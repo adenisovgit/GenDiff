@@ -25,8 +25,28 @@ const testLogicArgs = [
     '__tests__/__fixtures__/result_difftreejson'],
 ];
 
+const testExceptionsArgs = [
+  ['tree, json, dif, Exception',
+    '__tests__/__fixtures__/beforetree.json',
+    '__tests__/__fixtures__/aftertree.jso',
+    'dif',
+    '__tests__/__fixtures__/result_difftreejson'],
+  ['tree, yml, plan, Exception',
+    '__tests__/__fixtures__/beforetree.yml',
+    '__tests__/__fixtures__/aftertree.yml',
+    'plan',
+    '__tests__/__fixtures__/result_plaintree'],
+];
+
 test.each(testLogicArgs)(
   '%s',
   (type, fileName1, fileName2, format, resultFileString) => expect(genDiff(fileName1,
     fileName2, format)).toBe(readFileSync(resultFileString, 'utf8')),
+);
+
+
+test.each(testExceptionsArgs)(
+  '%s',
+  (type, fileName1, fileName2, format) => expect(() => genDiff(fileName1,
+    fileName2, format)).toThrow(),
 );
