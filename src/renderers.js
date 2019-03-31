@@ -69,12 +69,10 @@ const renderPlainTree = (ast, parents = '') => ast.map(obj => renderPlainActions
 
 const renderPlain = ast => _.flattenDeep(renderPlainTree(ast)).filter(value => value !== '').join('\n');
 
-const renderJSON = ast => JSON.stringify(ast);
-
 const renderers = {
   diff: renderDiff,
   plain: renderPlain,
-  json: renderJSON,
+  json: JSON.stringify,
 };
 
 const getRenderer = type => renderers[type];

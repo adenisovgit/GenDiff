@@ -2,7 +2,7 @@ import { readFileSync, existsSync } from 'fs';
 import path from 'path';
 import getParser from './parsers';
 import getDiffAst from './ast';
-import getRenderer from './renders';
+import getRenderer from './renderers';
 
 const checkForWrongFiles = fileNames => fileNames
   .reduce((acc, fileName) => (existsSync(fileName) ? acc : [...acc, fileName]), []);
