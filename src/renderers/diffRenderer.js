@@ -19,16 +19,6 @@ const prepareObjectValue = (obj, level) => {
   return [obj, []];
 };
 
-const normalizeValue = (value) => {
-  if (value instanceof Object) {
-    return '[complex value]';
-  }
-  if (typeof value === 'string' || value instanceof String) {
-    return `'${value}'`;
-  }
-  return value;
-};
-
 const renderDiffActions = {
   group: (obj, indent, level, func) => [`${indent}   ${obj.key}: {`, func(obj.children, level + 1), `${indent}   }`],
   same: (obj, indent) => [`${indent}   ${obj.key}: ${obj.value}`],
@@ -49,14 +39,6 @@ const renderDiffActions = {
   },
 };
 
-const renderPlainActions = {
-  group: (obj, parents, func) => func(obj.children, `${parents}${obj.key}.`),
-  same: () => '',
-  added: (obj, parents) => `Property '${parents}${obj.key}' was added with value: ${normalizeValue(obj.value)}`,
-  deleted: (obj, parents) => `Property '${parents}${obj.key}' was removed`,
-  changed: (obj, parents) => `Prorerty '${parents}${obj.key}' was updated. From ${normalizeValue(obj.oldValue)} to ${normalizeValue(obj.newValue)}`,
-};
-
 const renderDiffTree = (ast, level = 0) => ast.map(obj => renderDiffActions[obj
   .type](obj, indentValue(level), level, renderDiffTree));
 
@@ -65,16 +47,4 @@ const renderDiff = (ast, level = 0) => {
   return ['{', ...result, '}'].join('\n');
 };
 
-const renderPlainTree = (ast, parents = '') => ast.map(obj => renderPlainActions[obj.type](obj, parents, renderPlainTree));
-
-const renderPlain = ast => _.flattenDeep(renderPlainTree(ast)).filter(value => value !== '').join('\n');
-
-const renderers = {
-  diff: renderDiff,
-  plain: renderPlain,
-  json: JSON.stringify,
-};
-
-const getRenderer = type => renderers[type];
-
-export default getRenderer;
+export default renderDiff;
