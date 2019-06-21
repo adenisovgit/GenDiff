@@ -1,4 +1,4 @@
-# project-lvl2-s451
+# GenDiff
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/235f4e7c447c1dc8de52/maintainability)](https://codeclimate.com/github/adenisovgit/project-lvl2-s451/maintainability)
 <a href="https://codeclimate.com/github/adenisovgit/project-lvl2-s451/test_coverage"><img src="https://api.codeclimate.com/v1/badges/235f4e7c447c1dc8de52/test_coverage" /></a>
